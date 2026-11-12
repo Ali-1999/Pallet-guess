@@ -18,7 +18,7 @@ Open http://localhost:8000. Opening `index.html` directly from disk will not loa
 
 - Standard pallet: 1200 × 1000 mm; Euro pallet: 1200 × 800 mm; custom footprint supported.
 - Exact-model lookup, quantity input, catalogue search, and editable shipping data.
-- Upright carton placement, with 90-degree rotation of the footprint and no overhang.
+- Upright carton placement, with 90-degree rotation and a configurable overhang of up to 100 mm (10 cm) per side, enabled by default.
 - Height and gross-weight limits include pallet height and tare weight.
 - Single-layer default; additional layers require confirmation of the manufacturer-approved limit.
 - Pallet counts, partial pallets, top-view visualization, and weight breakdown.
@@ -42,7 +42,7 @@ The bundled catalogue is deployed with the app. User edits, additional models, a
 
 ## Planning method
 
-`dist/planner.js` enumerates upright strip layouts using both footprint orientations and selects the feasible pattern with the most cartons. It then applies the height, layer, and gross-weight limits. It plans one model per pallet and does not guarantee a globally optimal packing solution.
+`dist/planner.js` enumerates upright strip layouts using both footprint orientations and selects the feasible pattern with the most cartons. It then applies the height, layer, and gross-weight limits. It plans one model per pallet and does not guarantee a globally optimal packing solution. Loads are centered on the physical pallet. Optional overhang expands the allowable footprint without changing the pallet dimensions; actual left/right/front/back overhang is reported for each pallet. Cartons with no pallet contact are excluded. Partial base layers are centered separately, while stacked layers retain aligned positions.
 
 Verify the carton specifications, pallet rating, stacking strength, load support, and restraint requirements before loading. The tool does not calculate center of gravity, axle loads, transport securement, or mixed-model pallets.
 
@@ -90,6 +90,8 @@ Open **Chat assistant** in the navigation. It can look up dimensions, search mod
 - `Dimensions of WFB0914XM`
 - `Find washing machines`
 - `24 WFB0914XM on custom 140x100 cm`
+- `24 WFB0914XM on Standard, 2 per layer, overhang 10 cm`
+- `no overhang` (follow-up to an existing chat plan)
 
 The assistant has two explicit modes. **Guided mode** works without an AI connection and uses a local command parser. **AI mode** uses OpenAI to interpret natural-language requests into validated actions. Product facts always come from the saved catalogue, and the existing calculator always determines pallet counts. AI output cannot supply replacement carton dimensions, shipping weights, or stacking approvals. Chats are held in memory and reset on page reload; the saved-plan workflow is unchanged.
 
@@ -117,3 +119,19 @@ node --test tests/chat.test.cjs tests/chat-api.test.mjs
 ```
 
 The endpoint tests use mocked AI responses; they verify input validation, authorization, provider failure handling, and secret exclusion, not live model availability. Existing dimension-extraction checks remain available with `python3 -m unittest discover -s tests -v`.
+
+
+## Overhang and 2/4-carton arrangements
+
+The planner defaults to allowing up to **100 mm (10 cm) on each side**. Standard remains 1200 × 1000 mm and Euro remains 1200 × 800 mm. Uncheck **Allow carton overhang** to restore a strict pallet footprint, or set a smaller allowance.
+
+Choose Auto, 2, or 4 cartons per layer. Quick selections support 2 cartons in one layer, 4 cartons as 2 per layer × 2 layers, and 4 cartons in one layer. A fixed per-layer request is rejected when the carton sizes cannot fit within the allowance; it is never forced into the drawing. Layer count, total height, gross weight, and manufacturer stacking confirmation are still checked separately. For example, two 890 mm-high dishwasher cartons stacked above a 150 mm pallet need 1930 mm of total height.
+
+The top view shows the actual pallet as a dashed outline and overhanging carton areas in amber. Each pallet's exact overhang and loaded footprint are included in exported plans. Geometric fit does not certify adequate carton support, stacking strength, stability, or restraint. Old saved plans retain their original settings.
+
+Run the additional geometry and arrangement checks with:
+
+```sh
+node scripts/build-worker.mjs
+node --test tests/*.test.cjs tests/chat-api.test.mjs
+```

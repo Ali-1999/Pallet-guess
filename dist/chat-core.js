@@ -1,6 +1,6 @@
 (function(root){
 const pallets={standard:{L:1200,D:1000},euro:{L:1200,D:800}};
-const defaults={height:1800,maxWeight:1000,tare:25,palletHeight:150,layers:1,stackConfirmed:false};
+const defaults={height:1800,maxWeight:1000,tare:25,palletHeight:150,layers:1,stackConfirmed:false,allowOverhang:true,overhangMm:100,cartonsPerLayer:0};
 function safeCommand(c){
  if(!c||typeof c!=='object'||!['plan','dimensions','search','help','clarify'].includes(c.intent))throw Error('Invalid chat action.');
  if(c.model!=null&&(typeof c.model!=='string'||c.model.length>80))throw Error('Invalid model.');
@@ -30,15 +30,27 @@ function interpret(text,previous,catalogue){
  if(/\b(?:difference|compare pallets|what is a pallet|how does|help)\b/i.test(text))c.intent='help';
  return c;
 }
+function loadOptions(text){
+ const patch={};let cleaned=text;
+ const remove=(pattern,fn)=>{cleaned=cleaned.replace(pattern,(...args)=>{fn(...args);return ' ';});};
+ remove(/\b(?:no|disable|without|zero)\s+overhang\b/gi,()=>{patch.allowOverhang=false;patch.overhangMm=0;});
+ remove(/\boverhang\s*[:=]?\s*(\d+(?:\.\d+)?)\s*(mm|cm)\b/gi,(_,value,unit)=>{patch.allowOverhang=true;patch.overhangMm=Number(value)*(unit.toLowerCase()==='cm'?10:1);});
+ remove(/\b(\d+(?:\.\d+)?)\s*(mm|cm)\s*(?:per side\s*)?overhang\b/gi,(_,value,unit)=>{patch.allowOverhang=true;patch.overhangMm=Number(value)*(unit.toLowerCase()==='cm'?10:1);});
+ remove(/\b(2|4)\s*(?:cartons?\s*)?(?:per|in (?:each|one))\s*layer\b/gi,(_,value)=>{patch.cartonsPerLayer=Number(value);});
+ remove(/\b(1|2|4)\s*layers?\b/gi,(_,value)=>{patch.layers=Number(value);if(patch.layers>1)patch.stackConfirmed=false;});
+ return {text:cleaned.trim(),patch};
+}
 function handle(text,previous,catalogue,limits={},command=null,planner=root.LoadPlanner){
  const state={...previous},answer=(reply,extra={})=>({state,reply,actions:[],...extra});
  if(/^\s*(?:reset|start over|new plan)\s*[.!]?\s*$/i.test(text))return {state:{},reply:'Let’s start a new plan. Which LG model and how many cartons?',actions:[]};
- let c;try{c=safeCommand(command||interpret(text,state,catalogue));}catch(e){return answer(e.message);}
+ const options=loadOptions(text);state.loadOptions={...(state.loadOptions||{}),...options.patch};
+ let c;try{c=safeCommand(command||interpret(options.text,state,catalogue));}catch(e){return answer(e.message);}
+ if(Object.keys(options.patch).length&&state.model&&c.intent==='help')c.intent='plan';
  if(c.ambiguous)return answer('Please choose one exact model for this plan: '+c.ambiguous.join(', '));
  if(c.model){const p=catalogue.find(p=>p.model.toUpperCase()===c.model.toUpperCase());if(!p)return answer(`I couldn’t find the exact model ${c.model} in the saved Saudi catalogue. Check the code or add it with verified shipping data.`,{actions:[{type:'catalogue'}]});state.model=p.model;}
  if(c.quantity!=null)state.quantity=c.quantity;if(c.pallet)state.pallet=c.pallet;
  if(c.lengthMm!=null)state.L=c.lengthMm;if(c.widthMm!=null)state.D=c.widthMm;
- if(c.intent==='help')return answer('I can look up LG specifications and prepare one-model pallet plans. Standard is 1200 × 1000 mm; Euro is 1200 × 800 mm. Try “Plan 24 WFB0914XM on Euro” or “Dimensions of WFB0914XM”. For custom pallets, include the size and units. Load limits come from the planner form. Stacking stays at one layer unless you verify and set a higher limit there.');
+ if(c.intent==='help')return answer('I can look up LG specifications and prepare one-model pallet plans. Standard is 1200 × 1000 mm; Euro is 1200 × 800 mm. Try “Plan 24 WFB0914XM on Euro” or “Dimensions of WFB0914XM”. For custom pallets, include the size and units. Overhang is allowed up to 100 mm per side by default. Choose 2 or 4 cartons per layer and set verified layers in the planner form. Load limits come from that form. Stacking stays at one layer unless you verify and set a higher limit there.');
  if(c.intent==='search'){
   const aliases={'washers':'washing','washer':'washing','fridges':'refrigerator','fridge':'refrigerator','tvs':'tv','washing machines':'washing'};let q=(c.search||'').toLowerCase();q=aliases[q]||q;
   const words=q.split(/\s+/).filter(Boolean),matches=catalogue.filter(p=>words.every(w=>(p.model+' '+p.name+' '+p.category).toLowerCase().includes(w)));
@@ -61,10 +73,10 @@ function handle(text,previous,catalogue,limits={},command=null,planner=root.Load
  if(!product.dims||!product.weight)return answer(`${product.model} is missing packaged dimensions or gross weight. I can’t calculate a load until verified shipping data is added. Unpacked product dimensions won’t be used as carton sizes.`,{actions:[{type:'edit',model:product.model},{type:'dimensions',model:product.model}]});
  const footprint=state.pallet==='custom'?{L:state.L,D:state.D}:pallets[state.pallet];
  try{
-  const s={...defaults,...limits,...footprint,type:state.pallet};if(s.L>10000||s.D>10000)throw Error('Pallet dimensions must be 10,000 mm or less.');
+  const s={...defaults,...limits,...state.loadOptions,...footprint,type:state.pallet};if(state.loadOptions?.layers>1)s.stackConfirmed=!!limits.stackConfirmed&&limits.layers===state.loadOptions.layers;if(s.L>10000||s.D>10000)throw Error('Pallet dimensions must be 10,000 mm or less.');
   const plan=planner.plan(product,state.quantity,s);plan.source={url:product.url,checked:product.checked,userSupplied:!!product.userSupplied,note:product.note};
   const partial=plan.pallets.at(-1),count=plan.pallets.length;
-  return answer(`${product.model} · ${state.quantity} cartons\n${count} pallet${count===1?'':'s'} required on ${s.L} × ${s.D} mm pallets.\n${plan.capacity} cartons per full pallet; last pallet: ${partial.units}.\nTotal gross weight: ${plan.totalGrossWeight} kg, including ${s.tare} kg tare per pallet.\nHeight limit: ${s.height} mm; gross limit: ${s.maxWeight} kg. Upright cartons, no overhang, maximum ${s.layers} layer(s).${product.userSupplied?'\nBased on user-supplied shipping data.':''}`,{plan,actions:[{type:'viewPlan'},{type:'exportPlan'}]});
+  return answer(`${product.model} · ${state.quantity} cartons\n${count} pallet${count===1?'':'s'} required on ${s.L} × ${s.D} mm pallets.\n${plan.capacity} cartons per full pallet; last pallet: ${partial.units}.\nTotal gross weight: ${plan.totalGrossWeight} kg, including ${s.tare} kg tare per pallet.\nHeight limit: ${s.height} mm; gross limit: ${s.maxWeight} kg. Upright cartons; ${s.allowOverhang?s.overhangMm:0} mm allowed overhang per side; ${plan.perLayer} cartons per full layer; maximum ${s.layers} layer(s). Actual overhang L/R/F/B: ${Object.values(plan.overhang).join('/')} mm.${product.userSupplied?'\nBased on user-supplied shipping data.':''}`,{plan,actions:[{type:'viewPlan'},{type:'exportPlan'}]});
  }catch(e){return answer(e.message+' You can adjust dimensions or load limits in the planner.',{actions:[{type:'planner'}]});}
 }
 root.PlannerChat={interpret,handle,safeCommand};if(typeof module!=='undefined')module.exports=root.PlannerChat;
