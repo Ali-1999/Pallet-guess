@@ -6,7 +6,7 @@ Live application: https://lg-pallet-load-planner.gregorybundy66415.chatgpt.site
 
 ## Run locally
 
-No build step or dependencies are required. Serve the `dist` directory using a static HTTP server:
+For the planner and guided chat, no build step or dependencies are required. Serve the `dist` directory using a static HTTP server:
 
 ```sh
 python3 -m http.server 8000 --directory dist
@@ -80,3 +80,40 @@ Run extraction checks with:
 ```sh
 python3 -m unittest discover -s tests -v
 ```
+
+
+## Chat assistant
+
+Open **Chat assistant** in the navigation. It can look up dimensions, search models, ask for missing quantity/pallet information, calculate one-model loads, and open or export the resulting plan. Example messages:
+
+- `Plan 24 WFB0914XM on Euro`
+- `Dimensions of WFB0914XM`
+- `Find washing machines`
+- `24 WFB0914XM on custom 140x100 cm`
+
+The assistant has two explicit modes. **Guided mode** works without an AI connection and uses a local command parser. **AI mode** uses OpenAI to interpret natural-language requests into validated actions. Product facts always come from the saved catalogue, and the existing calculator always determines pallet counts. AI output cannot supply replacement carton dimensions, shipping weights, or stacking approvals. Chats are held in memory and reset on page reload; the saved-plan workflow is unchanged.
+
+### AI hosting and activation
+
+The AI endpoint is implemented in `worker/index.mjs`. Build the Worker with its embedded application assets:
+
+```sh
+node scripts/build-worker.mjs
+```
+
+The generated entry point is `dist/server/index.js` (ignored by Git). Publish it using the existing Sites project as a server-backed deployment. Keep hosted secrets in Sites runtime settings, never source files or browser storage:
+
+- `OPENAI_API_KEY`: required secret for AI mode; provision using the OpenAI Developers plugin workflow required by Sites.
+- `OPENAI_MODEL`: optional model ID, default `gpt-4.1-mini`.
+
+Without a configured key, the deployed assistant explicitly shows guided mode. The OpenAI Developers connection and secret provisioning are still required to activate real AI inference; a live provider call has not been verified. No API key is included in this repository. The implementation follows the [Responses API structured-output format](https://developers.openai.com/api/docs/guides/structured-outputs).
+
+`POST /api/chat` requires the Sites-authenticated visitor identity and a same-origin JSON request. It limits message size and history, applies a per-isolate request limit, and returns only validated action fields. The server sets `store: false` on OpenAI requests. In AI mode, user messages, short conversation history, selected request inputs, and a small list of catalogue matches are sent to OpenAI for interpretation. Failures fall back visibly to the guided parser; they are not presented as successful AI responses. `GET /api/chat/status` exposes only the configured mode, never credentials. Private-site access stays controlled by Sites.
+
+Run chat and endpoint checks after building:
+
+```sh
+node --test tests/chat.test.cjs tests/chat-api.test.mjs
+```
+
+The endpoint tests use mocked AI responses; they verify input validation, authorization, provider failure handling, and secret exclusion, not live model availability. Existing dimension-extraction checks remain available with `python3 -m unittest discover -s tests -v`.

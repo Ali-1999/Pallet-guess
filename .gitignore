@@ -5,3 +5,11 @@ node_modules/
 
 work/
 __pycache__/
+
+dist/server/
+dist/.openai/
+
+.dev.vars
+.dev.vars.*
+
+!.env.example
