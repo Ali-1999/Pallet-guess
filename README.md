@@ -18,7 +18,7 @@ Open http://localhost:8000. Opening `index.html` directly from disk will not loa
 
 - Standard pallet: 1200 × 1000 mm; Euro pallet: 1200 × 800 mm; custom footprint supported.
 - Exact-model lookup, quantity input, catalogue search, and editable shipping data.
-- Upright carton placement, with 90-degree rotation and a configurable overhang of up to 100 mm (10 cm) per side, enabled by default.
+- Upright carton placement, with 90-degree rotation, a configurable standard/width overhang of up to 100 mm (10 cm), and a long-unit length extension, enabled by default.
 - Height and gross-weight limits include pallet height and tare weight.
 - Single-layer default; additional layers require confirmation of the manufacturer-approved limit.
 - Pallet counts, partial pallets, top-view visualization, and weight breakdown.
@@ -126,7 +126,7 @@ The endpoint tests use mocked AI responses; they verify input validation, author
 
 ## Overhang and 2/4-carton arrangements
 
-The planner defaults to allowing up to **100 mm (10 cm) on each side**. Standard remains 1200 × 1000 mm and Euro remains 1200 × 800 mm. Uncheck **Allow carton overhang** to restore a strict pallet footprint, or set a smaller allowance.
+The planner defaults to a **100 mm (10 cm) standard/width allowance**, with the long-unit length extension described below. Standard remains 1200 × 1000 mm and Euro remains 1200 × 800 mm. Uncheck **Allow carton overhang** to restore a strict pallet footprint, or set a smaller allowance.
 
 Choose Auto, 2, or 4 cartons per layer. Quick selections support 2 cartons in one layer, 4 cartons as 2 per layer × 2 layers, and 4 cartons in one layer. A fixed per-layer request is rejected when the carton sizes cannot fit within the allowance; it is never forced into the drawing. Layer count, total height, gross weight, and manufacturer stacking confirmation are still checked separately. For example, two 890 mm-high dishwasher cartons stacked above a 150 mm pallet need 1930 mm of total height.
 
@@ -160,3 +160,10 @@ Additional outputs:
 - `data/reviewed-documents.json`: verified official support pages and manual download links.
 
 Promotional bundles remain reference listings and cannot be planned as one combined carton. Plan each actual component model separately. The model-details assets are gzip-compressed inside the deployed Worker and loaded on demand by the browser, keeping the main planner catalogue separate from the larger fact collection.
+
+
+## Units longer than the pallet
+
+**Allow unit length greater than pallet length** is enabled for new planner requests. With overhang enabled, it expands the length clearance only as far as needed for one upright carton, rotating the footprint by 90 degrees when appropriate. For example, an 1800 mm carton on a 1200 mm pallet has 300 mm of centered overhang at each length end. The actual pallet length remains 1200 mm; the loaded footprint includes the carton extension.
+
+The standard/width allowance remains limited to 100 mm per side. Long-unit mode does not extend the width limit, waive weight/height/stacking checks, or certify load support and restraint. Uncheck the long-unit option to use the normal allowance on both axes; disabling all overhang also disables long-unit expansion. Existing saved plans keep their original settings. Chat calculations use the same option from the planner form.

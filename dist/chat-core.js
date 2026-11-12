@@ -1,6 +1,6 @@
 (function(root){
 const pallets={standard:{L:1200,D:1000},euro:{L:1200,D:800}};
-const defaults={height:1800,maxWeight:1000,tare:25,palletHeight:150,layers:1,stackConfirmed:false,allowOverhang:true,overhangMm:100,cartonsPerLayer:0};
+const defaults={height:1800,maxWeight:1000,tare:25,palletHeight:150,layers:1,stackConfirmed:false,allowOverhang:true,allowLongUnits:true,overhangMm:100,cartonsPerLayer:0};
 function safeCommand(c){
  if(!c||typeof c!=='object'||!['plan','dimensions','search','help','clarify'].includes(c.intent))throw Error('Invalid chat action.');
  if(c.model!=null&&(typeof c.model!=='string'||c.model.length>80))throw Error('Invalid model.');
@@ -33,6 +33,8 @@ function interpret(text,previous,catalogue){
 function loadOptions(text){
  const patch={};let cleaned=text;
  const remove=(pattern,fn)=>{cleaned=cleaned.replace(pattern,(...args)=>{fn(...args);return ' ';});};
+ remove(/\b(?:disable|no)\s+long[- ]unit(?: mode| layouts?)?\b/gi,()=>{patch.allowLongUnits=false;});
+ remove(/\b(?:enable|allow)\s+long[- ]unit(?: mode| layouts?)?\b/gi,()=>{patch.allowLongUnits=true;patch.allowOverhang=true;});
  remove(/\b(?:no|disable|without|zero)\s+overhang\b/gi,()=>{patch.allowOverhang=false;patch.overhangMm=0;});
  remove(/\boverhang\s*[:=]?\s*(\d+(?:\.\d+)?)\s*(mm|cm)\b/gi,(_,value,unit)=>{patch.allowOverhang=true;patch.overhangMm=Number(value)*(unit.toLowerCase()==='cm'?10:1);});
  remove(/\b(\d+(?:\.\d+)?)\s*(mm|cm)\s*(?:per side\s*)?overhang\b/gi,(_,value,unit)=>{patch.allowOverhang=true;patch.overhangMm=Number(value)*(unit.toLowerCase()==='cm'?10:1);});
@@ -50,7 +52,7 @@ function handle(text,previous,catalogue,limits={},command=null,planner=root.Load
  if(c.model){const p=catalogue.find(p=>p.model.toUpperCase()===c.model.toUpperCase());if(!p)return answer(`I couldn’t find the exact model ${c.model} in the saved Saudi catalogue. Check the code or add it with verified shipping data.`,{actions:[{type:'catalogue'}]});state.model=p.model;}
  if(c.quantity!=null)state.quantity=c.quantity;if(c.pallet)state.pallet=c.pallet;
  if(c.lengthMm!=null)state.L=c.lengthMm;if(c.widthMm!=null)state.D=c.widthMm;
- if(c.intent==='help')return answer('I can look up LG specifications and prepare one-model pallet plans. Standard is 1200 × 1000 mm; Euro is 1200 × 800 mm. Try “Plan 24 WFB0914XM on Euro” or “Dimensions of WFB0914XM”. For custom pallets, include the size and units. Overhang is allowed up to 100 mm per side by default. Choose 2 or 4 cartons per layer and set verified layers in the planner form. Load limits come from that form. Stacking stays at one layer unless you verify and set a higher limit there.');
+ if(c.intent==='help')return answer('I can look up LG specifications and prepare one-model pallet plans. Standard is 1200 × 1000 mm; Euro is 1200 × 800 mm. Try “Plan 24 WFB0914XM on Euro” or “Dimensions of WFB0914XM”. For custom pallets, include the size and units. Standard/width overhang is allowed up to 100 mm per side by default. Long-unit mode can extend beyond that at the length ends to fit a carton longer than the pallet. Choose 2 or 4 cartons per layer and set verified layers in the planner form. Load limits come from that form. Stacking stays at one layer unless you verify and set a higher limit there.');
  if(c.intent==='search'){
   const aliases={'washers':'washing','washer':'washing','fridges':'refrigerator','fridge':'refrigerator','tvs':'tv','washing machines':'washing'};let q=(c.search||'').toLowerCase();q=aliases[q]||q;
   const words=q.split(/\s+/).filter(Boolean),matches=catalogue.filter(p=>words.every(w=>(p.model+' '+p.name+' '+p.category).toLowerCase().includes(w)));
@@ -77,7 +79,7 @@ function handle(text,previous,catalogue,limits={},command=null,planner=root.Load
   const s={...defaults,...limits,...state.loadOptions,...footprint,type:state.pallet};if(state.loadOptions?.layers>1)s.stackConfirmed=!!limits.stackConfirmed&&limits.layers===state.loadOptions.layers;if(s.L>10000||s.D>10000)throw Error('Pallet dimensions must be 10,000 mm or less.');
   const plan=planner.plan(product,state.quantity,s);plan.source={url:product.url,checked:product.checked,userSupplied:!!product.userSupplied,note:product.note};
   const partial=plan.pallets.at(-1),count=plan.pallets.length;
-  return answer(`${product.model} · ${state.quantity} cartons\n${count} pallet${count===1?'':'s'} required on ${s.L} × ${s.D} mm pallets.\n${plan.capacity} cartons per full pallet; last pallet: ${partial.units}.\nTotal gross weight: ${plan.totalGrossWeight} kg, including ${s.tare} kg tare per pallet.\nHeight limit: ${s.height} mm; gross limit: ${s.maxWeight} kg. Upright cartons; ${s.allowOverhang?s.overhangMm:0} mm allowed overhang per side; ${plan.perLayer} cartons per full layer; maximum ${s.layers} layer(s). Actual overhang L/R/F/B: ${Object.values(plan.overhang).join('/')} mm.${product.userSupplied?'\nBased on user-supplied shipping data.':''}`,{plan,actions:[{type:'viewPlan'},{type:'exportPlan'}]});
+  return answer(`${product.model} · ${state.quantity} cartons\n${count} pallet${count===1?'':'s'} required on ${s.L} × ${s.D} mm pallets.\n${plan.capacity} cartons per full pallet; last pallet: ${partial.units}.\nTotal gross weight: ${plan.totalGrossWeight} kg, including ${s.tare} kg tare per pallet.\nHeight limit: ${s.height} mm; gross limit: ${s.maxWeight} kg. Upright cartons; ${plan.settings.lengthOverhangLimitMm} mm length clearance per end and ${plan.settings.overhangMm} mm width overhang per side; ${plan.perLayer} cartons per full layer; maximum ${s.layers} layer(s). Actual overhang L/R/F/B: ${Object.values(plan.overhang).join('/')} mm.${product.userSupplied?'\nBased on user-supplied shipping data.':''}`,{plan,actions:[{type:'viewPlan'},{type:'exportPlan'}]});
  }catch(e){return answer(e.message+' You can adjust dimensions or load limits in the planner.',{actions:[{type:'planner'}]});}
 }
 root.PlannerChat={interpret,handle,safeCommand};if(typeof module!=='undefined')module.exports=root.PlannerChat;

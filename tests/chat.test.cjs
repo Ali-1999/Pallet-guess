@@ -13,6 +13,6 @@ test('AI commands go through calculator constraints and cannot add guessed dimen
 test('stacking limits remain governed by the calculator',()=>{let r=respond('24 WFB0914XM euro',{}, {layers:2,stackConfirmed:false});assert(!r.plan);assert.match(r.reply,/manufacturer-approved/)});
 test('reset removes prior model quantity and pallet',()=>{let r=respond('reset',{model:'WFB0914XM',quantity:24,pallet:'euro'});assert.deepEqual(r.state,{})});
 
-test('chat reports overhang and can turn it off in a follow-up',()=>{let r=respond('24 WFB0914XM on Euro');assert.equal(r.plan.capacity,2);assert.match(r.reply,/100 mm allowed/);r=respond('no overhang',r.state);assert.equal(r.plan.capacity,1);assert.equal(r.plan.settings.overhangMm,0);assert.equal(r.state.quantity,24)});
+test('chat reports overhang and can turn it off in a follow-up',()=>{let r=respond('24 WFB0914XM on Euro');assert.equal(r.plan.capacity,2);assert.match(r.reply,/100 mm width overhang/);r=respond('no overhang',r.state);assert.equal(r.plan.capacity,1);assert.equal(r.plan.settings.overhangMm,0);assert.equal(r.state.quantity,24)});
 test('chat separates per-layer counts from total quantity',()=>{const r=respond('24 WFB0914XM on Standard, 2 per layer, overhang 10 cm');assert(r.plan);assert.equal(r.state.quantity,24);assert.equal(r.plan.perLayer,2);assert.equal(r.plan.settings.overhangMm,100)});
 test('chat rejects overhang beyond the approved limit',()=>{const r=respond('24 WFB0914XM euro overhang 20 cm');assert(!r.plan);assert.match(r.reply,/between 0 and 100 mm/)});
