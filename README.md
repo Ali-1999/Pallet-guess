@@ -167,3 +167,9 @@ Promotional bundles remain reference listings and cannot be planned as one combi
 **Allow unit length greater than pallet length** is enabled for new planner requests. With overhang enabled, it expands the length clearance only as far as needed for one upright carton, rotating the footprint by 90 degrees when appropriate. For example, an 1800 mm carton on a 1200 mm pallet has 300 mm of centered overhang at each length end. The actual pallet length remains 1200 mm; the loaded footprint includes the carton extension.
 
 The standard/width allowance remains limited to 100 mm per side. Long-unit mode does not extend the width limit, waive weight/height/stacking checks, or certify load support and restraint. Uncheck the long-unit option to use the normal allowance on both axes; disabling all overhang also disables long-unit expansion. Existing saved plans keep their original settings. Chat calculations use the same option from the planner form.
+
+## Layer options and total loaded height
+
+The main form exposes **1, 2, 3, 4, or custom maximum layers**, alongside pallet height and the total height limit. Model-specific height choices update as soon as an exact model is selected. Total loaded height is `pallet height + layer count × packaged carton height`; for an 885 mm carton on a 150 mm pallet, the 1–4 layer choices are 1035, 1920, 2805, and 3690 mm.
+
+The preview identifies choices above the current height limit. **Set height limit to selected stack** raises the input only after an explicit click; changing layers alone does not raise a transport limit. Stacking approval remains required for multiple layers. The result distinguishes requested layers, height-limited layers, and actual layers after carton quantity and weight constraints. A side elevation and per-layer carton/height breakdown show the first pallet, while the pallet table reports each pallet's actual height. This breakdown is saved and exported with the plan.

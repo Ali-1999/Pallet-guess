@@ -23,6 +23,12 @@ function center(positions,L,D){
  return positions.map(p=>({...p,x:p.x+dx,y:p.y+dy}));
 }
 function overhang(positions,L,D){return {left:Math.max(0,-Math.min(...positions.map(p=>p.x))),right:Math.max(0,Math.max(...positions.map(p=>p.x+p.w))-L),front:Math.max(0,-Math.min(...positions.map(p=>p.y))),back:Math.max(0,Math.max(...positions.map(p=>p.y+p.d))-D)};}
+function stackHeight(cartonHeight,palletHeight,layers){return +(palletHeight+layers*cartonHeight).toFixed(3);}
+function heightOptions(cartonHeight,palletHeight,heightLimit,selectedLayers=1){
+ if(![cartonHeight,palletHeight,heightLimit,selectedLayers].every(Number.isFinite)||cartonHeight<=0||palletHeight<0||heightLimit<=0||!Number.isInteger(selectedLayers)||selectedLayers<1||selectedLayers>100)throw Error('Enter valid carton height, pallet height, height limit, and layer count.');
+ const maxLayersByHeight=Math.max(0,Math.floor((heightLimit-palletHeight+1e-7)/cartonHeight));
+ return {cartonHeight,palletHeight,heightLimit,selectedLayers,selectedHeight:stackHeight(cartonHeight,palletHeight,selectedLayers),maxLayersByHeight,selectedFitsHeight:selectedLayers<=maxLayersByHeight,choices:[1,2,3,4].map(layers=>({layers,height:stackHeight(cartonHeight,palletHeight,layers),fitsHeight:layers<=maxLayersByHeight}))};
+}
 function plan(p,q,input){
  if(p.bundle)throw Error('This is a multi-product bundle listing. Plan each component model and its own shipping cartons separately.');
  const s={...input,overhangMm:input.allowOverhang?(input.overhangMm??100):0,allowOverhang:!!input.allowOverhang,allowLongUnits:!!input.allowOverhang&&!!input.allowLongUnits,cartonsPerLayer:input.cartonsPerLayer??0};
@@ -44,12 +50,12 @@ function plan(p,q,input){
  if(s.cartonsPerLayer&&supported.length!==positions.length)throw Error('This layout leaves a carton without pallet contact. Choose a larger pallet or a smaller overhang.');
  positions=center(supported,s.L,s.D);
  if(!positions.length)throw Error('No cartons have pallet contact in this arrangement.');
- const heightLayers=Math.floor((s.height-s.palletHeight)/h),layers=Math.min(s.layers,heightLayers),weightUnits=Math.floor((s.maxWeight-s.tare)/p.weight),capacity=Math.min(positions.length*layers,weightUnits);
+ const heightLayers=Math.floor((s.height-s.palletHeight+1e-7)/h),layers=Math.min(s.layers,heightLayers),weightUnits=Math.floor((s.maxWeight-s.tare)/p.weight),capacity=Math.min(positions.length*layers,weightUnits);
  if(capacity<1)throw Error('Height or gross weight limit is too low for one carton plus the pallet.');
  const count=Math.ceil(q/capacity);
- const pallets=Array.from({length:count},(_,i)=>{const units=Math.min(capacity,q-i*capacity),basePositions=units<positions.length?center(positions.slice(0,units),s.L,s.D):positions,actual=overhang(basePositions,s.L,s.D);return {number:i+1,units,layers:Math.ceil(units/positions.length),height:s.palletHeight+Math.ceil(units/positions.length)*h,grossWeight:+(s.tare+units*p.weight).toFixed(2),positions:basePositions,overhang:actual,loadedFootprint:{L:s.L+actual.left+actual.right,D:s.D+actual.front+actual.back}};});
+ const pallets=Array.from({length:count},(_,i)=>{const units=Math.min(capacity,q-i*capacity),basePositions=units<positions.length?center(positions.slice(0,units),s.L,s.D):positions,actual=overhang(basePositions,s.L,s.D);return {number:i+1,units,layers:Math.ceil(units/positions.length),height:stackHeight(h,s.palletHeight,Math.ceil(units/positions.length)),grossWeight:+(s.tare+units*p.weight).toFixed(2),positions:basePositions,overhang:actual,layerBreakdown:Array.from({length:Math.ceil(units/positions.length)},(_,layer)=>({layer:layer+1,cartons:Math.min(positions.length,units-layer*positions.length),topHeight:stackHeight(h,s.palletHeight,layer+1)})),loadedFootprint:{L:s.L+actual.left+actual.right,D:s.D+actual.front+actual.back}};});
  const actualOverhang=Object.fromEntries(['left','right','front','back'].map(k=>[k,Math.max(...pallets.map(p=>p.overhang[k]))]));
- return {model:p.model,quantity:q,settings:s,carton:p.dims,cartonWeight:p.weight,capacity,perLayer:positions.length,positions,pallets,overhang:actualOverhang,totalGrossWeight:+(q*p.weight+count*s.tare).toFixed(2),method:`Feasible upright strip layout, 90° base rotation allowed; centered loads with up to ${extraLength} mm length overhang per end and ${extra} mm width overhang per side.${s.allowLongUnits?' Length clearance is expanded only enough for one long carton.':''} Not guaranteed globally optimal. One model per pallet. Geometric fit does not certify carton strength, load stability, support, or restraint.`};
+ return {model:p.model,quantity:q,settings:s,heightSummary:{...heightOptions(h,s.palletHeight,s.height,s.layers),capacityLayers:Math.ceil(capacity/positions.length),actualMaxLayers:Math.max(...pallets.map(p=>p.layers))},carton:p.dims,cartonWeight:p.weight,capacity,perLayer:positions.length,positions,pallets,overhang:actualOverhang,totalGrossWeight:+(q*p.weight+count*s.tare).toFixed(2),method:`Feasible upright strip layout, 90° base rotation allowed; centered loads with up to ${extraLength} mm length overhang per end and ${extra} mm width overhang per side.${s.allowLongUnits?' Length clearance is expanded only enough for one long carton.':''} Not guaranteed globally optimal. One model per pallet. Geometric fit does not certify carton strength, load stability, support, or restraint.`};
 }
-root.LoadPlanner={layout,plan,center,overhang};if(typeof module!=='undefined')module.exports=root.LoadPlanner;
+root.LoadPlanner={layout,plan,center,overhang,heightOptions};if(typeof module!=='undefined')module.exports=root.LoadPlanner;
 })(typeof globalThis!=='undefined'?globalThis:window);

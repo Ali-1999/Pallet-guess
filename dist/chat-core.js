@@ -33,13 +33,14 @@ function interpret(text,previous,catalogue){
 function loadOptions(text){
  const patch={};let cleaned=text;
  const remove=(pattern,fn)=>{cleaned=cleaned.replace(pattern,(...args)=>{fn(...args);return ' ';});};
+ remove(/\b(?:max(?:imum)?\s+|total\s+)?height(?: limit)?\s*[:=]?\s*(\d+(?:\.\d+)?)\s*(mm|cm|m)\b/gi,(_,value,unit)=>{patch.height=Number(value)*({mm:1,cm:10,m:1000}[unit.toLowerCase()]);});
  remove(/\b(?:disable|no)\s+long[- ]unit(?: mode| layouts?)?\b/gi,()=>{patch.allowLongUnits=false;});
  remove(/\b(?:enable|allow)\s+long[- ]unit(?: mode| layouts?)?\b/gi,()=>{patch.allowLongUnits=true;patch.allowOverhang=true;});
  remove(/\b(?:no|disable|without|zero)\s+overhang\b/gi,()=>{patch.allowOverhang=false;patch.overhangMm=0;});
  remove(/\boverhang\s*[:=]?\s*(\d+(?:\.\d+)?)\s*(mm|cm)\b/gi,(_,value,unit)=>{patch.allowOverhang=true;patch.overhangMm=Number(value)*(unit.toLowerCase()==='cm'?10:1);});
  remove(/\b(\d+(?:\.\d+)?)\s*(mm|cm)\s*(?:per side\s*)?overhang\b/gi,(_,value,unit)=>{patch.allowOverhang=true;patch.overhangMm=Number(value)*(unit.toLowerCase()==='cm'?10:1);});
  remove(/\b(2|4)\s*(?:cartons?\s*)?(?:per|in (?:each|one))\s*layer\b/gi,(_,value)=>{patch.cartonsPerLayer=Number(value);});
- remove(/\b(1|2|4)\s*layers?\b/gi,(_,value)=>{patch.layers=Number(value);if(patch.layers>1)patch.stackConfirmed=false;});
+ remove(/\b(\d{1,3})\s*layers?\b/gi,(_,value)=>{patch.layers=Number(value);if(patch.layers>1)patch.stackConfirmed=false;});
  return {text:cleaned.trim(),patch};
 }
 function handle(text,previous,catalogue,limits={},command=null,planner=root.LoadPlanner){
@@ -79,7 +80,7 @@ function handle(text,previous,catalogue,limits={},command=null,planner=root.Load
   const s={...defaults,...limits,...state.loadOptions,...footprint,type:state.pallet};if(state.loadOptions?.layers>1)s.stackConfirmed=!!limits.stackConfirmed&&limits.layers===state.loadOptions.layers;if(s.L>10000||s.D>10000)throw Error('Pallet dimensions must be 10,000 mm or less.');
   const plan=planner.plan(product,state.quantity,s);plan.source={url:product.url,checked:product.checked,userSupplied:!!product.userSupplied,note:product.note};
   const partial=plan.pallets.at(-1),count=plan.pallets.length;
-  return answer(`${product.model} · ${state.quantity} cartons\n${count} pallet${count===1?'':'s'} required on ${s.L} × ${s.D} mm pallets.\n${plan.capacity} cartons per full pallet; last pallet: ${partial.units}.\nTotal gross weight: ${plan.totalGrossWeight} kg, including ${s.tare} kg tare per pallet.\nHeight limit: ${s.height} mm; gross limit: ${s.maxWeight} kg. Upright cartons; ${plan.settings.lengthOverhangLimitMm} mm length clearance per end and ${plan.settings.overhangMm} mm width overhang per side; ${plan.perLayer} cartons per full layer; maximum ${s.layers} layer(s). Actual overhang L/R/F/B: ${Object.values(plan.overhang).join('/')} mm.${product.userSupplied?'\nBased on user-supplied shipping data.':''}`,{plan,actions:[{type:'viewPlan'},{type:'exportPlan'}]});
+  return answer(`${product.model} · ${state.quantity} cartons\n${count} pallet${count===1?'':'s'} required on ${s.L} × ${s.D} mm pallets.\n${plan.capacity} cartons per full pallet; last pallet: ${partial.units}.\nTotal gross weight: ${plan.totalGrossWeight} kg, including ${s.tare} kg tare per pallet.\nHeight: selected ${s.layers} layer(s) need ${plan.heightSummary.selectedHeight} mm; height limit ${s.height} mm allows ${plan.heightSummary.maxLayersByHeight} layer(s); this plan uses up to ${plan.heightSummary.actualMaxLayers}. Gross limit: ${s.maxWeight} kg. Upright cartons; ${plan.settings.lengthOverhangLimitMm} mm length clearance per end and ${plan.settings.overhangMm} mm width overhang per side; ${plan.perLayer} cartons per full layer; maximum ${s.layers} layer(s). Actual overhang L/R/F/B: ${Object.values(plan.overhang).join('/')} mm.${product.userSupplied?'\nBased on user-supplied shipping data.':''}`,{plan,actions:[{type:'viewPlan'},{type:'exportPlan'}]});
  }catch(e){return answer(e.message+' You can adjust dimensions or load limits in the planner.',{actions:[{type:'planner'}]});}
 }
 root.PlannerChat={interpret,handle,safeCommand};if(typeof module!=='undefined')module.exports=root.PlannerChat;
