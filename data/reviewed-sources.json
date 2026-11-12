@@ -1,0 +1,49 @@
+{
+  "WF1310WHT": [
+    {
+      "status": "verified",
+      "url": "https://tamkeenstores.com.sa/en/product/lg-front-load-washing-machine-13kg-wi-fi-direct-drive-inverter-white-wf1310wht",
+      "market": "sa_en",
+      "sourceType": "retailer",
+      "retailer": "Tamkeen",
+      "modelCode": "WF1310WHT",
+      "name": "LG Front Load Washing Machine 13kg, White WF1310WHT",
+      "checked": "2026-11-12",
+      "fullSpecs": [
+        {"label": "Width (retailer; packaging basis unspecified)", "value": "64.5 cm"},
+        {"label": "Height (retailer; packaging basis unspecified)", "value": "94.0 cm"},
+        {"label": "Depth (retailer; packaging basis unspecified)", "value": "77.0 cm"},
+        {"label": "Net Weight", "value": "63.0 kg"},
+        {"label": "Gross Weight", "value": "66.0 kg"}
+      ],
+      "dims": null,
+      "weight": 66,
+      "bundle": false,
+      "documents": []
+    }
+  ],
+  "MH6595DIS": [
+    {
+      "status": "verified",
+      "url": "https://tamkeenstores.com.sa/en/product/lg-neochef-25l-grill-microwave-oven-smart-inverter-smart-diagnosis-easyclean-black-mh6595dis",
+      "market": "sa_en",
+      "sourceType": "retailer",
+      "retailer": "Tamkeen",
+      "modelCode": "MH6595DIS",
+      "name": "LG NeoChef 25L Grill Microwave MH6595DIS",
+      "checked": "2026-11-12",
+      "fullSpecs": [
+        {"label": "Product Dimensions (W × H × D)", "value": "476 × 272 × 379 mm"},
+        {"label": "Packing Dimensions (W × H × D)", "value": "540 × 294 × 410 mm"},
+        {"label": "Product Weight", "value": "9.3 kg"},
+        {"label": "Shipping Weight", "value": "12 kg"},
+        {"label": "Capacity", "value": "25 L"},
+        {"label": "Microwave Power Output", "value": "1000 W"}
+      ],
+      "dims": [540,410,294],
+      "weight": 12,
+      "bundle": false,
+      "documents": []
+    }
+  ]
+}

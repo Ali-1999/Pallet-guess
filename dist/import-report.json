@@ -2,8 +2,8 @@
   "market": "Saudi Arabia",
   "source": "https://www.lg.com/sa_en/sitemap.xml",
   "checked": "2026-11-12",
-  "models": 856,
-  "ready": 282,
+  "models": 1191,
+  "ready": 386,
   "errors": [
     {
       "model": "55QNED756RB1",
@@ -13,7 +13,7 @@
     {
       "model": "65MRGB9MB6A",
       "url": "https://www.lg.com/sa_en/tv-soundbars/mini-rgb-evo/65mrgb9mb6a/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "65NANO776RA1",
@@ -23,12 +23,12 @@
     {
       "model": "65NANO846QA",
       "url": "https://www.lg.com/sa_en/tv-soundbars/4k-uhd-tvs/65nano846qa/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "70UQ80006LD1",
       "url": "https://www.lg.com/sa_en/tv-soundbars/smart-tvs/70uq80006ld1/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "75QNED95VPA1",
@@ -38,22 +38,22 @@
     {
       "model": "AJP748945041",
       "url": "https://www.lg.com/sa_en/care-accessories/refrigerators/tray-basket/ajp748945041/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "DISHWASHERS1",
       "url": "https://www.lg.com/sa_en/care-accessories/dishwashers/dishwashers1/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "DRYERS1",
       "url": "https://www.lg.com/sa_en/care-accessories/dryers/dryers1/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "LM334VBMLD",
       "url": "https://www.lg.com/sa_en/refrigerators/multi-doors/lm334vbmld/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "LTT2GBBECR",
@@ -63,12 +63,12 @@
     {
       "model": "MONITORS1",
       "url": "https://www.lg.com/sa_en/care-accessories/monitors/monitors1/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "ND182HO",
       "url": "https://www.lg.com/sa_en/rac-air-conditioners/rac-split-air-conditioners/nd182ho/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "ND242CO",
@@ -83,7 +83,7 @@
     {
       "model": "OLED65B46LA",
       "url": "https://www.lg.com/sa_en/tv-soundbars/oled/oled65b46la/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "OLED65C26LA1",
@@ -98,32 +98,37 @@
     {
       "model": "OLED77B36LA",
       "url": "https://www.lg.com/sa_en/tv-soundbars/4k-uhd-tvs/oled77b36la/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
+    },
+    {
+      "model": "OLED77B56LA",
+      "url": "https://www.lg.com/sa_en/tv-soundbars/oled/oled77b56la/",
+      "status": "fetch-failed"
     },
     {
       "model": "OLED77M36LA",
       "url": "https://www.lg.com/sa_en/tv-soundbars/ultra-big-tvs/oled77m36la/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "OLED83M36LA",
       "url": "https://www.lg.com/sa_en/tv-soundbars/ultra-big-tvs/oled83m36la/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "PROJECTORS1",
       "url": "https://www.lg.com/sa_en/projectors/projectors1/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "REFRIGERATORS1",
       "url": "https://www.lg.com/sa_en/care-accessories/refrigerators/refrigerators1/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "WFV1214WHT1",
       "url": "https://www.lg.com/sa_en/washing-machines/washing-machines/wfv1214wht1/",
-      "status": "model-unconfirmed"
+      "status": "no-product"
     },
     {
       "model": "WSV1107XLT11CBB",
@@ -132,9 +137,28 @@
     }
   ],
   "bulkBlocked": false,
-  "scope": "All saved Saudi sitemap model listings were checked against their linked LG pages. Exact-model published dimensions and weights are retained where available. Missing fields are never inferred from similar models. Listings may be discontinued; catalogue completeness and availability are not guaranteed.",
-  "withDimensions": 285,
-  "withDimensionSpecs": 674,
-  "verifiedPages": 831,
-  "attemptedModels": 856
+  "scope": "Saudi model catalogue researched against official regional LG pages and sitemap product discovery. Overseas sources are reference only and do not automatically supply Saudi shipping dimensions. Full published technical facts and source model codes are retained. Completeness and availability are not guaranteed.",
+  "withDimensions": 391,
+  "withDimensionSpecs": 862,
+  "verifiedPages": 1165,
+  "attemptedModels": 1191,
+  "baselineModels": 856,
+  "withFullSpecs": 972,
+  "withRegionalReferences": 412,
+  "addedModels": 335,
+  "researchedPages": 3591,
+  "researchedMarkets": [
+    "ae",
+    "africa",
+    "au",
+    "eg_en",
+    "in",
+    "levant_en",
+    "sa_ar",
+    "sa_en",
+    "uk",
+    "za"
+  ],
+  "researchedRequests": 3593,
+  "withoutPublishedDetails": 219
 }

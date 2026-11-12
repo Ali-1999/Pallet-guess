@@ -26,17 +26,20 @@ Open http://localhost:8000. Opening `index.html` directly from disk will not loa
 
 ## Catalogue coverage
 
-The saved catalogue contains **856 model-like listings** discovered in selected categories of the [LG Saudi Arabia sitemap](https://www.lg.com/sa_en/sitemap.xml). All 856 linked pages were checked on 12 November 2026, and unavailable/unmatched pages were retried.
+The catalogue contains **1,191 Saudi model and reference entries**, expanded from 856 listings by researching **3,591 distinct pages** from official LG market websites and selected reviewed retailer/manual sources on 12 November 2026.
 
-- **831** exact-model pages were confirmed.
-- **674** models have published dimension or weight specifications saved with their original LG labels.
-- **285** models have packaged width, depth, and height.
-- **282** models have both packaged dimensions and gross weight for pallet planning.
-- **25** pages could not be matched to the requested model or fetched successfully.
+- **335** additional identifiers were discovered, including models with hyphenated codes.
+- **972** entries have collected published technical specifications.
+- **412** entries have regional source references, with full source model codes preserved.
+- **391** entries have packaged width, depth, and height.
+- **386** entries have both packaged dimensions and gross weight for pallet planning.
+- **219** entries still lack collected technical fact tables; unresolved shipping/detail fields are listed in `dist/missing-data.json`.
 
-Use **All dimensions** in the catalogue to see published product, packaging, stand, and other dimensional specifications where available. Carton width, depth, and height are also shown in separate columns. Explicit imperial measurements are converted to millimetres and kilograms for calculations, while the original values remain visible. Unlabelled LG Saudi TV packaging dimensions and overseas packaging weights follow LG's metric convention; this is noted in the detail view.
+The indexed markets are Saudi Arabia (English/Arabic), UAE, Levant, Egypt, United Kingdom, Australia and Africa, plus selected exact-model official references from India and South Africa. Reviewed Saudi retailer references are labelled separately. Published manual links are retained for selected models. This research does not claim to cover every LG product ever manufactured or every retailer.
 
-Missing carton measurements or gross weights remain blank and block planning. Product dimensions and net weight are never substituted for shipping specifications. Multiple or conflicting carton sizes require review. Listings may include discontinued models and current availability is unverified; this is **not a complete LG product database**. Each record links to its LG source, and `dist/import-report.json` records coverage.
+Use **Full details** to inspect all collected technical facts, source markets, exact source model codes, and document links. Use **All dimensions** for the main dimensional specifications. Explicit inches/pounds are converted to millimetres/kilograms for planner inputs; original published values are retained. LG's published `Dimension in Shiping` labels and `*` dimension separators are recognized without estimating carton sizes.
+
+Unpublished or ambiguous values remain blank. Overseas packing data stays reference-only and does not automatically replace Saudi shipping inputs. Product dimensions/net weight are never substituted for carton dimensions/gross weight. Bundles require separate component plans; multiple or conflicting packing measurements require review. Listings may be discontinued and current availability is unverified.
 
 The bundled catalogue is deployed with the app. User edits, additional models, and saved plans are stored only in the current browser; there is no server database or cross-device synchronization. Export backups before clearing browser data.
 
@@ -135,3 +138,25 @@ Run the additional geometry and arrangement checks with:
 node scripts/build-worker.mjs
 node --test tests/*.test.cjs tests/chat-api.test.mjs
 ```
+
+## Full model research and regional references
+
+The **Full details** action opens searchable technical specifications with a source/market selector. It retains published capacities, controls, connectivity, features, dimensions, weights, exact regional model codes, and official document links where available. Sources reporting different packing values are flagged. Saudi retailer references are explicitly labelled. Overseas measurements remain reference data and do not automatically enter Saudi pallet calculations.
+
+The broader researcher first indexes selected LG market sitemaps, then rechecks known models, discovers additional Saudi product identifiers, and collects matching regional product pages:
+
+```sh
+python3 scripts/research-models.py --phase index --work work/research
+python3 scripts/research-models.py --phase all --work work/research
+```
+
+It resumes from per-phase caches under the ignored work directory. `curl` is the dependency-free transport; when `httpx` is installed, the researcher reuses connections. Concurrency is bounded to eight requests. The scope is the Saudi catalogue and its exact-code regional references, not every LG product ever made. Absence of a published specification remains a gap.
+
+Additional outputs:
+
+- `dist/product-details.json`: collected technical facts, source URLs, markets, full source model codes, and document references.
+- `dist/missing-data.json`: unresolved shipping inputs, including bundle entries that require component-level planning.
+- `data/reviewed-sources.json`: individually reviewed retailer references; unspecified dimensions are kept as reference facts and never inferred to be carton dimensions.
+- `data/reviewed-documents.json`: verified official support pages and manual download links.
+
+Promotional bundles remain reference listings and cannot be planned as one combined carton. Plan each actual component model separately. The model-details assets are gzip-compressed inside the deployed Worker and loaded on demand by the browser, keeping the main planner catalogue separate from the larger fact collection.

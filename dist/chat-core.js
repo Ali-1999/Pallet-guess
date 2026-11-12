@@ -22,7 +22,7 @@ function interpret(text,previous,catalogue){
  else if(/\b(euro|eur|epal)\b/i.test(text))c.pallet='euro';else if(/\bstandard\b/i.test(text))c.pallet='standard';else if(/\bcustom\b/i.test(text))c.pallet='custom';
  const count=cleaned.match(/\b(?:quantity|qty|cartons?|units?|pieces?|pcs)\s*[:=]?\s*(\d+(?:\.\d+)?)/i)||cleaned.match(/\b(\d+(?:\.\d+)?)\s*(?:cartons?|units?|pieces?|pcs)\b/i)||cleaned.match(/^\s*(?:plan|load|palletize|palletise|make)?\s*(\d+(?:\.\d+)?)\b/i);
  if(count)c.quantity=Number(count[1]);
- if(/\b(?:dimensions?|specs?|specifications?|weight)\b/i.test(text)&&!(/\b(?:plan|load|calculate|cartons?|qty|quantity)\b/i.test(text)))c.intent='dimensions';
+ if(/\b(?:dimensions?|specs?|specifications?|weight|details?|features?|capacity)\b/i.test(text)&&!(/\b(?:plan|load|calculate|cartons?|qty|quantity)\b/i.test(text)))c.intent='dimensions';
  else if(/\b(?:find|search|show|list)\b/i.test(text)&&!c.model){c.intent='search';c.search=text.replace(/\b(?:find|search|show|list|me|lg|models?|products?|please)\b/gi,'').trim();}
  else if(previous.intent==='dimensions'&&c.model&&c.quantity==null&&!c.pallet&&!/\b(?:plan|load|calculate)\b/i.test(text))c.intent='dimensions';
  else if(c.model||c.quantity!=null||c.pallet||previous.intent==='plan'||/\b(?:plan|load|palletize|palletise|calculate)\b/i.test(text))c.intent='plan';
@@ -63,13 +63,14 @@ function handle(text,previous,catalogue,limits={},command=null,planner=root.Load
   if(!product)return answer('Which exact LG model would you like dimensions for?');
   const rows=[];if(product.dims)rows.push(`Packaged W × D × H: ${product.dims.join(' × ')} mm`);if(product.weight)rows.push(`Gross carton weight: ${product.weight} kg`);
   rows.push(...(product.dimensionSpecs||[]).slice(0,12).map(r=>r.label+': '+r.value));
-  return answer(product.model+'\n'+(rows.length?rows.join('\n'):'Published dimensions are not available in this catalogue. Please enter verified shipping data before planning.')+(product.userSupplied?'\nPlanner shipping data is user supplied.':''),{actions:[{type:'dimensions',model:product.model},{type:'planModel',model:product.model}]});
+  return answer(product.model+'\n'+(rows.length?rows.join('\n'):'Published dimensions are not available in this catalogue. Please enter verified shipping data before planning.')+(product.userSupplied?'\nPlanner shipping data is user supplied.':''),{actions:[{type:'details',model:product.model},{type:'dimensions',model:product.model},{type:'planModel',model:product.model}]});
  }
  state.intent='plan';
  if(!product)return answer('Which exact LG model are you loading? You can include the quantity, for example “24 WFB0914XM”.');
  if(!state.quantity)return answer(`How many cartons of ${product.model} are you loading?`);
  if(!state.pallet)return answer('Which pallet should I use: Standard (1200 × 1000 mm) or Euro (1200 × 800 mm)?',{suggestions:['Standard','Euro']});
  if(state.pallet==='custom'&&(!state.L||!state.D))return answer('What is the custom pallet’s length × width? Please include units, for example “140 × 100 cm”.');
+ if(product.bundle)return answer('This is a multi-product bundle listing. Please plan each component model separately using its own shipping carton dimensions.',{actions:[{type:'catalogue'}]});
  if(!product.dims||!product.weight)return answer(`${product.model} is missing packaged dimensions or gross weight. I can’t calculate a load until verified shipping data is added. Unpacked product dimensions won’t be used as carton sizes.`,{actions:[{type:'edit',model:product.model},{type:'dimensions',model:product.model}]});
  const footprint=state.pallet==='custom'?{L:state.L,D:state.D}:pallets[state.pallet];
  try{

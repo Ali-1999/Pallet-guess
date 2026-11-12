@@ -3,12 +3,12 @@ function chatMessage(role,text,actions=[],result=null){
  const row=document.createElement('div');row.className='chatmessage '+role;
  const label=document.createElement('small');label.textContent=role==='user'?'YOU':'PLANNER ASSISTANT';row.append(label);
  const body=document.createElement('div');body.className='chatbubble';body.textContent=text;row.append(body);
- if(actions.length){const group=document.createElement('div');group.className='chatactions';for(const action of actions){const b=document.createElement('button');b.className='secondary';b.textContent={dimensions:'All dimensions',edit:'Add shipping data',catalogue:'Open catalogue',planner:'Open planner',planModel:'Plan this model',viewPlan:'View pallet layout',exportPlan:'Export plan'}[action.type]||'Open';b.onclick=()=>chatAction(action,result);group.append(b);}row.append(group);}
+ if(actions.length){const group=document.createElement('div');group.className='chatactions';for(const action of actions){const b=document.createElement('button');b.className='secondary';b.textContent={details:'Full specifications',dimensions:'All dimensions',edit:'Add shipping data',catalogue:'Open catalogue',planner:'Open planner',planModel:'Plan this model',viewPlan:'View pallet layout',exportPlan:'Export plan'}[action.type]||'Open';b.onclick=()=>chatAction(action,result);group.append(b);}row.append(group);}
  $('chatmessages').append(row);$('chatmessages').scrollTop=$('chatmessages').scrollHeight;
 }
 function chatAction(action,result){
  const p=products.find(p=>p.model===action.model);
- if(action.type==='dimensions'&&p)showDimensions(p);else if(action.type==='edit'&&p)edit(p);else if(action.type==='catalogue')tab('catalogue');else if(action.type==='planner')tab('planner');
+ if(action.type==='details'&&p)showProductDetails(p);else if(action.type==='dimensions'&&p)showDimensions(p);else if(action.type==='edit'&&p)edit(p);else if(action.type==='catalogue')tab('catalogue');else if(action.type==='planner')tab('planner');
  else if(action.type==='planModel'&&p)sendChat('Plan '+p.model);
  else if(action.type==='exportPlan'&&result?.plan)download(result.plan.model+'-pallet-plan.json',result.plan);
  else if(action.type==='viewPlan'&&result?.plan){const plan=result.plan;$('model').value=plan.model;$('quantity').value=plan.quantity;$('custom').checked=plan.settings.type==='custom';document.querySelector(`[name=pallet][value="${plan.settings.type==='euro'?'euro':'standard'}"]`).checked=true;palletChange();$('length').value=plan.settings.L;$('depth').value=plan.settings.D;applyLoadSettings(plan.settings);updateModel();lastPlan=plan;renderPlan(plan);tab('planner');}

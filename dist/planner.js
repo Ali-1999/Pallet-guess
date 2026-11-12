@@ -24,6 +24,7 @@ function center(positions,L,D){
 }
 function overhang(positions,L,D){return {left:Math.max(0,-Math.min(...positions.map(p=>p.x))),right:Math.max(0,Math.max(...positions.map(p=>p.x+p.w))-L),front:Math.max(0,-Math.min(...positions.map(p=>p.y))),back:Math.max(0,Math.max(...positions.map(p=>p.y+p.d))-D)};}
 function plan(p,q,input){
+ if(p.bundle)throw Error('This is a multi-product bundle listing. Plan each component model and its own shipping cartons separately.');
  const s={...input,overhangMm:input.allowOverhang?(input.overhangMm??100):0,allowOverhang:!!input.allowOverhang,cartonsPerLayer:input.cartonsPerLayer??0};
  if(!Number.isSafeInteger(q)||q<1||q>100000)throw Error('Quantity must be a whole number from 1 to 100,000.');
  for(const k of ['L','D','height','maxWeight','tare','palletHeight','layers'])if(!Number.isFinite(s[k])||s[k]<(k==='tare'?0:1))throw Error('Enter valid positive pallet limits.');

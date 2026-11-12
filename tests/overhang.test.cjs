@@ -13,3 +13,4 @@ test('weight limits reduce loaded quantity and include tare',()=>{const r=planne
 test('four cartons per base layer work when a larger pallet actually fits them',()=>{const r=planner.plan(washer,8,{...base,L:1400,D:1400,cartonsPerLayer:4});assert.equal(r.perLayer,4);assert.equal(r.pallets.length,2);assertGeometry(r)});
 test('four verified layers remain available with adequate height',()=>{const r=planner.plan(washer,8,{...base,cartonsPerLayer:2,layers:4,height:4000,stackConfirmed:true});assert.equal(r.capacity,8);assert.equal(r.pallets[0].layers,4);assert.equal(r.pallets[0].height,3690);assertGeometry(r)});
 test('small cartons at outer edges do not create floating placements',()=>{const r=planner.plan({model:'SMALL',dims:[100,100,100],weight:1},240,base);assert.equal(r.perLayer,120);assertGeometry(r)});
+test('bundle listings cannot be treated as one combined shipping carton',()=>{assert.throws(()=>planner.plan({...washer,bundle:true},4,base),/component model/)});

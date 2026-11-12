@@ -9,6 +9,8 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(r['dims'],[710,670,1020]);self.assertEqual(r['weight'],83);self.assertEqual(len(r['dimensionSpecs']),3)
     def test_unpacked_not_used_for_shipping(self):
         r=m.parse_page(page([('Product Dimensions (WxHxD mm)','650x950x645'),('Weight (kg)','77')]),'MODEL123');self.assertIsNone(r['dims']);self.assertIsNone(r['weight'])
+    def test_lg_shipping_typo_and_asterisk_dimensions(self):
+        r=m.parse_page(page([('Dimension in Shiping (W x H x D) [mm]','1206 * 534 * 201'),('Weight in Shipping [kg]','17.8')]),'MODEL123');self.assertEqual(r['dims'],[1206,201,534]);self.assertEqual(r['weight'],17.8)
     def test_exact_model(self):
         self.assertEqual(m.parse_page(page([],'OTHER123'),'MODEL123')['status'],'model-unconfirmed')
         self.assertEqual(m.parse_page(page([],'MODEL123.AMVG'),'MODEL123')['status'],'verified')

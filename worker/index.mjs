@@ -41,6 +41,7 @@ Layer counts, per-layer carton counts, and overhang distances are handled by a s
  if(path.startsWith('/api/'))return json({error:'Not found'},404);
  if(!['GET','HEAD'].includes(request.method))return new Response('Method not allowed',{status:405});
  const asset=ASSETS[path==='/'?'/index.html':path];if(!asset)return new Response('Not found',{status:404});
- return new Response(request.method==='HEAD'?null:asset.body,{headers:{'Content-Type':asset.type,'Cache-Control':'no-cache','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin'}});
+ const headers={'Content-Type':asset.type,'Cache-Control':'no-cache','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin'};let body=asset.body;if(asset.encoding==='gzip-base64'){headers['Content-Encoding']='gzip';if(request.method!=='HEAD')body=Uint8Array.from(atob(asset.body),c=>c.charCodeAt(0));}
+ return new Response(request.method==='HEAD'?null:body,{headers});
 }
 export default {fetch(request,env){return route(request,env);}};

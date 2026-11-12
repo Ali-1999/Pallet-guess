@@ -20,17 +20,17 @@ def parse_page(markup, model):
         return code==expected or ('.' not in expected and code.startswith(expected+'.') and bool(re.fullmatch(r'[A-Z0-9]{3,6}',code[len(expected)+1:])))
     matching=[p for p in schemas if matches(p)]
     if len(matching)!=1: return {'status':'model-unconfirmed','dimensionSpecs':[]}
-    pairs=[(clean(a),clean(b)) for a,b in re.findall(r'c-compare-selling__spec-name[^>]*>(.*?)</div>\s*<div[^>]*c-compare-selling__spec-desc[^>]*>(.*?)</div>',markup,re.S)]
+    pairs=[(clean(a),clean(b)) for a,b in re.findall(r'c-compare-selling__spec-name[^>]{0,160}>(.{0,2000}?)</div>\s*<div[^>]{0,160}c-compare-selling__spec-desc[^>]{0,160}>(.{0,12000}?)</div>',markup,re.S)]
     specs=[]; dims=None; weight=None; dim_options=[]; weight_options=[]; multi_package=False
     for label,value in pairs:
         if not re.search(r'dimension|weight|depth|height|width|\bsize\b',label,re.I): continue
         row={'label':label,'value':value}
         if row not in specs: specs.append(row)
-        packed=bool(re.search(r'box|pack(?:ing|age|ed|aging)?|shipping|gross',label,re.I))
+        packed=bool(re.search(r'box|pack(?:ing|age|ed|aging)?|ship(?:p)?ing|gross',label,re.I))
         if packed and re.search(r'indoor|outdoor|subwoofer|rear speaker',label,re.I): multi_package=True
         if packed and re.search(r'dimension|\bsize\b',label,re.I):
             order=re.search(r'([WHLD])\s*[x×]\s*([WHLD])\s*[x×]\s*([WHLD])',label,re.I)
-            numbers=re.fullmatch(r'\s*(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)\s*(?:mm|cm|inches?|in\.)?\s*',value.replace(',','').replace(chr(34),'').replace('″',''),re.I)
+            numbers=re.fullmatch(r'\s*(\d+(?:\.\d+)?)\s*[x×*]\s*(\d+(?:\.\d+)?)\s*[x×*]\s*(\d+(?:\.\d+)?)\s*(?:mm|cm|inches?|in\.)?\s*',value.replace(',','').replace(chr(34),'').replace('″',''),re.I)
             # Explicit source units are converted to mm; unlabelled TV values
             # follow LG Saudi metric convention. Raw specifications stay unchanged.
             if order and numbers:
