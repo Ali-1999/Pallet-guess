@@ -1,1 +1,140 @@
-{"market": "Saudi Arabia", "source": "https://www.lg.com/sa_en/sitemap.xml", "checked": "2026-11-12", "models": 856, "ready": 9, "errors": [], "bulkBlocked": true, "scope": "Partial catalogue: model-like listings discovered from LG Saudi Arabia sitemap, with selected shipping specifications verified from LG product pages. Listings may include discontinued products. Bulk page fetching returned HTTP 403; remaining details are unverified. Completeness is not claimed."}
+{
+  "market": "Saudi Arabia",
+  "source": "https://www.lg.com/sa_en/sitemap.xml",
+  "checked": "2026-11-12",
+  "models": 856,
+  "ready": 282,
+  "errors": [
+    {
+      "model": "55QNED756RB1",
+      "url": "https://www.lg.com/sa_en/tv-soundbars/qned/55qned756rb1/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "65MRGB9MB6A",
+      "url": "https://www.lg.com/sa_en/tv-soundbars/mini-rgb-evo/65mrgb9mb6a/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "65NANO776RA1",
+      "url": "https://www.lg.com/sa_en/tv-soundbars/nanocell/65nano776ra1/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "65NANO846QA",
+      "url": "https://www.lg.com/sa_en/tv-soundbars/4k-uhd-tvs/65nano846qa/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "70UQ80006LD1",
+      "url": "https://www.lg.com/sa_en/tv-soundbars/smart-tvs/70uq80006ld1/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "75QNED95VPA1",
+      "url": "https://www.lg.com/sa_en/tv-soundbars/qned/75qned95vpa1/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "AJP748945041",
+      "url": "https://www.lg.com/sa_en/care-accessories/refrigerators/tray-basket/ajp748945041/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "DISHWASHERS1",
+      "url": "https://www.lg.com/sa_en/care-accessories/dishwashers/dishwashers1/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "DRYERS1",
+      "url": "https://www.lg.com/sa_en/care-accessories/dryers/dryers1/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "LM334VBMLD",
+      "url": "https://www.lg.com/sa_en/refrigerators/multi-doors/lm334vbmld/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "LTT2GBBECR",
+      "url": "https://www.lg.com/sa_en/refrigerators/top-freezers/ltt2gbbecr/",
+      "status": "fetch-failed"
+    },
+    {
+      "model": "MONITORS1",
+      "url": "https://www.lg.com/sa_en/care-accessories/monitors/monitors1/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "ND182HO",
+      "url": "https://www.lg.com/sa_en/rac-air-conditioners/rac-split-air-conditioners/nd182ho/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "ND242CO",
+      "url": "https://www.lg.com/sa_en/rac-air-conditioners/rac-split-air-conditioners/nd242co/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "OLED55C36LA1",
+      "url": "https://www.lg.com/sa_en/tv-soundbars/oled/oled55c36la1/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "OLED65B46LA",
+      "url": "https://www.lg.com/sa_en/tv-soundbars/oled/oled65b46la/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "OLED65C26LA1",
+      "url": "https://www.lg.com/sa_en/tv-soundbars/4k-uhd-tvs/oled65c26la1/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "OLED65C36LA1",
+      "url": "https://www.lg.com/sa_en/tv-soundbars/oled/oled65c36la1/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "OLED77B36LA",
+      "url": "https://www.lg.com/sa_en/tv-soundbars/4k-uhd-tvs/oled77b36la/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "OLED77M36LA",
+      "url": "https://www.lg.com/sa_en/tv-soundbars/ultra-big-tvs/oled77m36la/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "OLED83M36LA",
+      "url": "https://www.lg.com/sa_en/tv-soundbars/ultra-big-tvs/oled83m36la/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "PROJECTORS1",
+      "url": "https://www.lg.com/sa_en/projectors/projectors1/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "REFRIGERATORS1",
+      "url": "https://www.lg.com/sa_en/care-accessories/refrigerators/refrigerators1/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "WFV1214WHT1",
+      "url": "https://www.lg.com/sa_en/washing-machines/washing-machines/wfv1214wht1/",
+      "status": "model-unconfirmed"
+    },
+    {
+      "model": "WSV1107XLT11CBB",
+      "url": "https://www.lg.com/sa_en/washing-machines/front-load-combo/wsv1107xlt11cbb/",
+      "status": "model-unconfirmed"
+    }
+  ],
+  "bulkBlocked": false,
+  "scope": "All saved Saudi sitemap model listings were checked against their linked LG pages. Exact-model published dimensions and weights are retained where available. Missing fields are never inferred from similar models. Listings may be discontinued; catalogue completeness and availability are not guaranteed.",
+  "withDimensions": 285,
+  "withDimensionSpecs": 674,
+  "verifiedPages": 831,
+  "attemptedModels": 856
+}
