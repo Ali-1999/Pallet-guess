@@ -2,12 +2,15 @@
 const pallets={standard:{L:1200,D:1000},euro:{L:1200,D:800}};
 const defaults={height:1800,heightMode:'auto',maxWeight:1000,tare:25,palletHeight:150,layers:1,stackConfirmed:false,allowOverhang:true,allowLongUnits:true,overhangMm:100,cartonsPerLayer:0};
 function safeCommand(c){
- if(!c||typeof c!=='object'||!['plan','dimensions','search','help','clarify'].includes(c.intent))throw Error('Invalid chat action.');
+ if(!c||typeof c!=='object'||!['plan','dimensions','search','help','clarify','vehicle'].includes(c.intent))throw Error('Invalid chat action.');
  if(c.model!=null&&(typeof c.model!=='string'||c.model.length>80))throw Error('Invalid model.');
  if(c.quantity!=null&&(!Number.isSafeInteger(c.quantity)||c.quantity<1||c.quantity>100000))throw Error('Quantity must be a whole number from 1 to 100,000.');
  if(c.pallet!=null&&!['standard','euro','custom'].includes(c.pallet))throw Error('Choose Standard, Euro, or Custom.');
  for(const k of ['lengthMm','widthMm'])if(c[k]!=null&&(!Number.isFinite(c[k])||c[k]<1||c[k]>10000))throw Error('Custom pallet dimensions must be 1 to 10,000 mm.');
  if(c.search!=null&&(typeof c.search!=='string'||c.search.length>160))throw Error('Search is too long.');
+ if(c.vehicle!=null&&!['dyna','lorry','trailer','best'].includes(c.vehicle))throw Error('Invalid vehicle profile.');
+ if(c.loadingMode!=null&&!['pallets','cartons'].includes(c.loadingMode))throw Error('Invalid loading mode.');
+ if(c.items!=null){if(!Array.isArray(c.items)||c.items.length>30)throw Error('Maximum 30 shipment lines.');for(const l of c.items)if(typeof l.model!=='string'||l.model.length>80||!Number.isSafeInteger(l.quantity)||l.quantity<1||l.quantity>100000)throw Error('Invalid shipment model or quantity.');}
  return c;
 }
 function interpret(text,previous,catalogue){

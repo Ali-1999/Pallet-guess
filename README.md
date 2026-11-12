@@ -173,3 +173,25 @@ The standard/width allowance remains limited to 100 mm per side. Long-unit mode 
 The main form exposes **1, 2, 3, 4, or custom maximum layers**, alongside pallet height and the total height limit. Model-specific height choices update as soon as an exact model is selected. Total loaded height is `pallet height + layer count × packaged carton height`; for an 885 mm carton on a 150 mm pallet, the 1–4 layer choices are 1035, 1920, 2805, and 3690 mm.
 
 Height is calculated automatically from the selected layer count and model carton height, including the pallet base. No manual height entry or apply button is needed. An optional, separate transport height limit can be enabled in advanced settings; when enabled, it can reduce the layers used. Stacking approval remains required for multiple layers. The result distinguishes requested layers, height-limited layers, and actual layers after carton quantity and weight constraints. A side elevation and per-layer carton/height breakdown show the first pallet, while the pallet table reports each pallet's actual height. This breakdown is saved and exported with the plan.
+
+## Vehicle load planner: Dyna, lorry and trailer
+
+Open **Vehicle load planner** to build a mixed-model shipment and compare editable Dyna/light-truck, rigid-lorry and articulated-trailer profiles. The initial body dimensions and payloads are **illustrative planning assumptions, not manufacturer specifications**. Enter the actual vehicle's internal usable length, width, cargo-height allowance, door clearances and net available cargo payload. Payload here means available capacity for goods and pallet tare, not gross vehicle mass.
+
+Add up to 30 model lines with carton quantities and a per-model maximum layer count. Multiple layers require the operator's confirmed stacking limit. Choose palletized cargo or loose upright carton stacks. Palletized plans inherit the pallet planner's base height, tare, rating and overhang settings and use the shipment's Standard/Euro choice. Actual loaded pallet footprints include carton overhang. Loose-carton mode omits pallet tare and forms same-model vertical stacks within the selected layer and vehicle-height limits. Different models are never mixed into a single stack or pallet.
+
+The planner checks body fit, door width/height, payload and a user-entered minimum floor gap, then produces non-overlapping floor placements and additional trips as needed. It compares feasible plans by **fewest trips, then smaller cargo body**, or **lowest entered total trip cost**, with fewer trips as the cost tie-breaker. Cost mode requires positive operator-entered trip rates for all enabled profiles; it does not invent carrier quotes. The packing algorithm is a heuristic and does not guarantee the global minimum number of trips.
+
+Results show the recommended configured profile, comparison table, per-trip top view, model/carton manifest, front-to-rear suggested loading order, floor/payload utilization and maximum loaded height. Axle loads, restraint, unloading motion, multi-stop access and route/legal clearance are not simulated. Bodies and clearances are treated as rectangular usable envelopes. Pallets are not stacked on other pallets. A batch is limited to 2,000 floor positions. Save comparisons in this browser, export a full JSON manifest with source and input snapshots, or print the selected load to PDF.
+
+### Logistics chat
+
+The chat now handles mixed-model vehicle requests, missing quantities, pallet follow-ups, Dyna/lorry/trailer selection, adding or removing a model, and profile/cost comparisons. Examples:
+
+- `Best truck for 24 WFB0914XM on Standard`
+- `Load 24 WFB0914XM and 12 DFC435FW on a trailer, Euro`
+- `Dyna for WFB0914XM` → `24` → `Standard`
+- `add 12 DFC435FW`
+- `Compare loose cartons on Dyna and lorry`
+
+Chat uses the current editable vehicle profiles; recommendations are calculated by `dist/vehicle-core.js`. The existing guided mode works without an AI credential. When OpenAI is configured, structured AI actions can extract vehicle choice, loading mode and multiple model quantities; all fields and calculations are still validated by the same deterministic engine. Generative AI remains inactive until the previously documented credential setup is completed.
