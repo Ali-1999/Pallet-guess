@@ -33,11 +33,12 @@ function plan(p,q,input){
  if(p.bundle)throw Error('This is a multi-product bundle listing. Plan each component model and its own shipping cartons separately.');
  const s={...input,overhangMm:input.allowOverhang?(input.overhangMm??100):0,allowOverhang:!!input.allowOverhang,allowLongUnits:!!input.allowOverhang&&!!input.allowLongUnits,cartonsPerLayer:input.cartonsPerLayer??0};
  if(!Number.isSafeInteger(q)||q<1||q>100000)throw Error('Quantity must be a whole number from 1 to 100,000.');
- for(const k of ['L','D','height','maxWeight','tare','palletHeight','layers'])if(!Number.isFinite(s[k])||s[k]<(k==='tare'?0:1))throw Error('Enter valid positive pallet limits.');
+ for(const k of ['L','D','height','maxWeight','tare','palletHeight','layers'].filter(k=>k!=='height'||s.heightMode!=='auto'))if(!Number.isFinite(s[k])||s[k]<(k==='tare'?0:1))throw Error('Enter valid positive pallet limits.');
  if(!Number.isInteger(s.layers)||s.layers>100)throw Error('Maximum layers must be a whole number from 1 to 100.');
  if(!Number.isFinite(s.overhangMm)||s.overhangMm<0||s.overhangMm>100)throw Error('Standard/width overhang must be between 0 and 100 mm per side.');
  if(![0,2,4].includes(s.cartonsPerLayer))throw Error('Choose Auto, 2, or 4 cartons per layer.');
  if(!p.dims||p.dims.length!==3||p.dims.some(v=>!Number.isFinite(v)||v<=0)||!Number.isFinite(p.weight)||p.weight<=0)throw Error('Packaged dimensions and gross weight are required. Update this model in the catalogue.');
+ if(s.heightMode==='auto')s.height=stackHeight(p.dims[2],s.palletHeight,s.layers);
  if(s.layers>1&&!s.stackConfirmed)throw Error('Confirm the manufacturer-approved stack limit before using multiple layers.');
  const [w,d,h]=p.dims,extra=s.overhangMm,extraLength=s.allowLongUnits?Math.max(extra,(Math.max(w,d)-s.L)/2):extra;
  s.lengthOverhangLimitMm=extraLength;
