@@ -15,7 +15,7 @@ function repeat(t,requested){const m=metrics(t,true);if(m.usedLayers>1&&!t.stack
   }pallets.push(next);
  }
  return {template:JSON.parse(JSON.stringify(t)),requested:{...requested},fullPallets:full,partialPallets:pallets.length-full,pallets,totalCartons:total,totalGrossWeight:round(pallets.reduce((n,p)=>n+p.grossWeight,0)),created:new Date().toISOString(),method:'Full pallets preserve the exact manual design. Partial pallets use only requested goods; empty layers are lowered and unsupported partial layouts are rebuilt as base layers. Review partial pallets separately. Geometric support does not certify carton strength, stability or restraint.'};}
-function vehicleItems(batch){return batch.pallets.map(p=>({id:'manual-'+p.number,model:'Custom pallet',quantity:p.units,layers:p.layers,L:p.loadedFootprint.L,D:p.loadedFootprint.D,H:p.height,weight:p.grossWeight,kind:p.partial?'Partial custom pallet':'Custom pallet',contents:p.counts,layout:{boxes:p.boxes,pallet:p.pallet,footprint:p.loadedFootprint},source:'Manual 2D layout'}));}
+function vehicleItems(batch){return batch.pallets.map(p=>({id:'manual-'+p.number,stop:p.stop??1,destination:p.destination||'',model:'Custom pallet',quantity:p.units,layers:p.layers,L:p.loadedFootprint.L,D:p.loadedFootprint.D,H:p.height,weight:p.grossWeight,kind:p.partial?'Partial custom pallet':'Custom pallet',contents:p.counts,layout:{boxes:p.boxes,pallet:p.pallet,footprint:p.loadedFootprint},source:'Manual 2D layout'}));}
 
 function resetLayer(t,layer){
  schema(t);
