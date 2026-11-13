@@ -195,3 +195,8 @@ The chat now handles mixed-model vehicle requests, missing quantities, pallet fo
 - `Compare loose cartons on Dyna and lorry`
 
 Chat uses the current editable vehicle profiles; recommendations are calculated by `dist/vehicle-core.js`. The existing guided mode works without an AI credential. When OpenAI is configured, structured AI actions can extract vehicle choice, loading mode and multiple model quantities; all fields and calculations are still validated by the same deterministic engine. Generative AI remains inactive until the previously documented credential setup is completed.
+
+### Manual 2D pallet builder
+The default workspace supports selecting catalogue or user-added cartons, dragging in 10 mm increments, precise X/Y edits, rotation, 1–50 layers, copying layers, and automatic loaded height (sum of layer maxima plus pallet base). Layer overlaps, pallet contact and geometric upper-layer support are checked. Users confirm stacking limits separately. The browser autosaves the draft; designs and complete batches can be exported/imported as JSON.
+
+Shipment totals repeat the exact full-pallet template. Partial pallets use only remaining goods and can be inspected individually by layer. Unsupported remainder layouts are rebuilt on base layers and identified as partials. Vehicle comparison uses each completed pallet's actual overhang footprint, height, contents and gross weight without changing its layers. Dyna, lorry and trailer sizes are editable illustrative profiles, not manufacturer specifications.
